@@ -8,6 +8,7 @@
 #include "Button.h"
 #include "Label.h"
 #include "Box.h"
+#include "Obstacle.h"
 
 class PlayScene : public Scene
 {
@@ -30,9 +31,10 @@ private:
 	float m_mass = 12.8;
 	glm::vec2 m_acceleration;
 	glm::vec2 velocity;
-	float m_gravity = 980;
+	float m_gravity = -980;
 	float m_friction = 0.42;
-
+	bool m_isGrounded;
+	Obstacle* m_obstacle;
 
 };
 

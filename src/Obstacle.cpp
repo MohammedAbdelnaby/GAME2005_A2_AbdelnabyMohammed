@@ -6,9 +6,9 @@
 
 Obstacle::Obstacle()
 {
-	TextureManager::Instance().load("../Assets/textures/obstacle.png", "obstacle");
+	TextureManager::Instance().load("../Assets/textures/ramp.png", "ramp");
 
-	auto size = TextureManager::Instance().getTextureSize("obstacle");
+	auto size = TextureManager::Instance().getTextureSize("ramp");
 	setWidth(size.x);
 	setHeight(size.y);
 
@@ -17,7 +17,6 @@ Obstacle::Obstacle()
 	setType(OBSTACLE);
 	getRigidBody()->isColliding = false;
 
-	SoundManager::Instance().load("../Assets/audio/yay.ogg", "yay", SOUND_SFX);
 }
 
 Obstacle::~Obstacle()
@@ -25,7 +24,7 @@ Obstacle::~Obstacle()
 
 void Obstacle::draw()
 {
-	TextureManager::Instance().draw("obstacle",
+	TextureManager::Instance().draw("ramp",
 		getTransform()->position.x, getTransform()->position.y, 0, 255, true);
 }
 
