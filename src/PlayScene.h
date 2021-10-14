@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "Button.h"
 #include "Label.h"
+#include "Box.h"
 
 class PlayScene : public Scene
 {
@@ -24,17 +25,15 @@ private:
 	// IMGUI Function
 	void GUI_Function() const;
 	std::string m_guiTitle;
-	
+	Box* m_box;
 	glm::vec2 m_mousePosition;
+	float m_mass = 12.8;
+	glm::vec2 m_acceleration;
+	glm::vec2 velocity;
+	float m_gravity = 980;
+	float m_friction = 0.42;
 
-	Plane* m_pPlaneSprite;
-	Player* m_pPlayer;
-	bool m_playerFacingRight;
 
-	// UI Items
-	Button* m_pBackButton;
-	Button* m_pNextButton;
-	Label* m_pInstructionsLabel;
 };
 
 #endif /* defined (__PLAY_SCENE__) */
