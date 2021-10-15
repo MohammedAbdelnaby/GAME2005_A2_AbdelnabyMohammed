@@ -28,28 +28,28 @@ void PlayScene::draw()
 
 void PlayScene::update()
 {
-	float DeltaTime = 0.016;
+	float DeltaTime = Game::Instance().getDeltaTime();
 	updateDisplayList();
-	//if (m_box->getTransform()->position.x >= )
-	//{
-	//	m_isGrounded = true;
-	//}
-	//else
-	//{
-	//	m_isGrounded = false;
-	//}
-	if (/*m_box->getTransform()->position.y > 0 ||*/ m_isGrounded)
+	if (CollisionManager::lineRectCheck(glm::vec2(0, 300),glm::vec2(0 + cos(-m_box->getAngle() * (3.14 / 180)) * 600 ,300 + sin(m_box->getAngle() * (3.14 / 180)) * 600),m_box->getTransform()->position, m_box->getWidth() - 10, m_box->getHeight() - 10))
 	{
-		std::cout << m_box->getTransform()->position.y << ", " << m_box->getTransform()->position.x << std::endl;
+		m_isGrounded = true;
+	}
+	else
+	{
+		m_isGrounded = false;
+	}
+	if (m_box->getTransform()->position.y > 600 || m_isGrounded)
+	{
+		velocity.x += m_acceleration.x * DeltaTime;
+		std::cout << /*velocity.x*/ (300 + sin(m_box->getAngle() * (3.14 / 180)) * 600) << std::endl;
 		velocity.y = 0;
 	}
 	else
 	{
-
-		velocity.y -= m_gravity * DeltaTime;
+		velocity.x = 0;
+		velocity.y -= m_acceleration.y * DeltaTime;
 	}
 	//std::cout << m_box->getTransform()->position.y << ", " << m_box->getTransform()->position.x << std::endl;
-	//std::cout << velocity.x << std::endl;
 	m_box->getTransform()->position.y += velocity.y * DeltaTime;
 	m_box->getTransform()->position.x += velocity.x * DeltaTime;
 }

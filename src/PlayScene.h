@@ -29,9 +29,10 @@ private:
 	Box* m_box;
 	glm::vec2 m_mousePosition;
 	float m_mass = 12.8;
-	glm::vec2 m_acceleration;
 	glm::vec2 velocity;
 	float m_gravity = -980;
+	glm::vec2 m_acceleration = glm::vec2((m_mass * -m_gravity * cos(36.38 * (3.14 / 180))) / m_mass, m_gravity);
+
 	float m_friction = 0.42;
 	bool m_isGrounded;
 	Obstacle* m_obstacle;
