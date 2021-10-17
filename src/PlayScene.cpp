@@ -33,6 +33,10 @@ void PlayScene::update()
 	updateDisplayList();
 	if (m_launch)
 	{
+		if (m_velocityX >= 0)
+		{
+			m_time += DeltaTime;
+		}
 		if (m_box->getTransform()->position.y <= 600 - m_box->getHeight() / 2)
 		{
 			m_velocityY -= m_accelerationY * (sin(m_angle * (M_PI / 180))) * DeltaTime;
@@ -62,7 +66,7 @@ void PlayScene::update()
 	}
 	m_distance = (m_box->getTransform()->position.x - 10);
 	std::stringstream distancetravled;
-	distancetravled << "Displacement(X):" << m_distance << " Angle:" << m_angle << " Gravity:" << m_gravity << " Friction:" << m_friction;
+	distancetravled << "Displacement(X):" << m_distance << " Angle:" << m_angle << " Gravity:" << m_gravity << " Time:" << m_time;
 	const std::string distanceString = distancetravled.str();
 	m_distanceUI->setText(distanceString);
 }
@@ -95,7 +99,7 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
-	const SDL_Color blue = { 0 , 0, 0, 255 };
+	const SDL_Color blue = { 0 , 0, 255, 255 };
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
 	TextureManager::Instance().load("../Assets/textures/background.png", "background");
@@ -149,6 +153,7 @@ void PlayScene::GUI_Function()
 		m_velocityY = 0;
 		m_velocityX = 0;
 		m_distance = 0;
+		m_time = 0;
 	}
 	ImGui::End();
 }

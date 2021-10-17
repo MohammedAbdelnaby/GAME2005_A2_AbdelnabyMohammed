@@ -45,6 +45,7 @@ private:
 	bool m_isGrounded;
 	bool m_launch = false;
 	float m_distance = 0;
+	float m_time = 0;
 };
 
 #endif /* defined (__PLAY_SCENE__) */
