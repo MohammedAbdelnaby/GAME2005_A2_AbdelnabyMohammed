@@ -19,11 +19,11 @@ PlayScene::~PlayScene()
 
 void PlayScene::draw()
 {
+	TextureManager::Instance().draw("background", 400, 300, 0, 255, true);
 	drawDisplayList();
-	//TextureManager::Instance().draw("ramp", 192, 450, 0, 255, true);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 0, 0, 255, 255);
 	SDL_RenderDrawLine(Renderer::Instance().getRenderer(), 0, 300,
-		0 + cos(-m_angle *(3.14/180)) * 800,300 + sin(m_angle * (3.14 / 180)) * 800);
+		0 + cos(-m_angle * (3.14 / 180)) * 800, 300 + sin(m_angle * (3.14 / 180)) * 800);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 255, 255, 255, 255);
 }
 
@@ -95,15 +95,22 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
-	const SDL_Color blue = { 255, 0,0, 255 };
+	const SDL_Color blue = { 0 , 0, 0, 255 };
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
+	TextureManager::Instance().load("../Assets/textures/background.png", "background");
+
+
 	m_box = new Box();
 	m_box->getTransform()->position = glm::vec2(10.0f, 275.0f);
 	m_box->setAngle(m_angle);
 	addChild(m_box);
 
-	m_distanceUI = new Label("", "Consolas", 20, blue, glm::vec2(400.0f, 50.0f));
+
+	m_pInstructionsLabel = new Label("\" ` \" for ImGui and all the controls", "Consolas", 40, blue, glm::vec2(400.0f, 23.0f));
+	m_pInstructionsLabel->setParent(this);
+	addChild(m_pInstructionsLabel);
+	m_distanceUI = new Label("", "Consolas", 20, blue, glm::vec2(400.0f, 60.0f));
 	m_distanceUI->setParent(this);
 	addChild(m_distanceUI);
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
@@ -116,7 +123,7 @@ void PlayScene::GUI_Function()
 
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
-	
+
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
 	ImGui::SliderFloat("Mass", &m_mass, 20, -20, "%.2f");
@@ -128,6 +135,7 @@ void PlayScene::GUI_Function()
 	{
 		m_launch = true;
 	}
+	ImGui::SameLine();
 	if (ImGui::Button("RESET"))
 	{
 		m_launch = false;

@@ -26,6 +26,7 @@ private:
 	void GUI_Function();
 	std::string m_guiTitle;
 	Box* m_box;
+	Label* m_pInstructionsLabel{};
 	glm::vec2 m_mousePosition;
 	Label* m_distanceUI{};
 
