@@ -8,7 +8,6 @@
 #include "Button.h"
 #include "Label.h"
 #include "Box.h"
-#include "Obstacle.h"
 
 class PlayScene : public Scene
 {
@@ -28,9 +27,12 @@ private:
 	std::string m_guiTitle;
 	Box* m_box;
 	glm::vec2 m_mousePosition;
+	Label* m_distanceUI{};
+
+
 	float m_mass = 128;
-	float velocityY;
-	float velocityX;
+	float m_velocityY;
+	float m_velocityX;
 	float m_angle = 36.87;
 	float m_gravity = -980;
 	float m_accelerationX;
@@ -41,9 +43,6 @@ private:
 	float m_frictionForce;
 	bool m_isGrounded;
 	bool m_launch = false;
-	Obstacle* m_obstacle;
-	float normalForce;
-	int startingY = 300;
 	float m_distance = 0;
 };
 

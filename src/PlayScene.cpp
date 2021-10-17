@@ -1,6 +1,7 @@
 #include "PlayScene.h"
 #include "Game.h"
 #include "EventManager.h"
+#include <sstream>
 
 // required for IMGUI
 #include "imgui.h"
@@ -21,7 +22,7 @@ void PlayScene::draw()
 	drawDisplayList();
 	//TextureManager::Instance().draw("ramp", 192, 450, 0, 255, true);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 0, 0, 255, 255);
-	SDL_RenderDrawLine(Renderer::Instance().getRenderer(), 0, startingY,
+	SDL_RenderDrawLine(Renderer::Instance().getRenderer(), 0, 300,
 		0 + cos(-m_angle *(3.14/180)) * 800,300 + sin(m_angle * (3.14 / 180)) * 800);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 255, 255, 255, 255);
 }
@@ -34,22 +35,21 @@ void PlayScene::update()
 	{
 		if (m_box->getTransform()->position.y <= 600 - m_box->getHeight() / 2)
 		{
-			velocityY -= m_accelerationY * (sin(m_angle * (M_PI / 180))) * DeltaTime;
-			velocityX += m_accelerationX * cos(m_angle * (M_PI / 180)) * DeltaTime;
-			m_box->getTransform()->position.y += velocityY * DeltaTime;
-			m_box->getTransform()->position.x += velocityX * DeltaTime;
+			m_velocityY -= m_accelerationY * (sin(m_angle * (M_PI / 180))) * DeltaTime;
+			m_velocityX += m_accelerationX * cos(m_angle * (M_PI / 180)) * DeltaTime;
+			m_box->getTransform()->position.y += m_velocityY * DeltaTime;
+			m_box->getTransform()->position.x += m_velocityX * DeltaTime;
 		}
 		else
 		{
 			m_box->setAngle(0);
-			if (velocityX >= 0)
+			if (m_velocityX >= 0)
 			{
 				m_accelerationX = -(m_frictionForce - m_forceY) / m_mass;
-				velocityX += m_accelerationX * DeltaTime;
-				m_box->getTransform()->position.x += velocityX * DeltaTime;
+				m_velocityX += m_accelerationX * DeltaTime;
+				m_box->getTransform()->position.x += m_velocityX * DeltaTime;
 			}
 		}
-		std::cout << (m_box->getTransform()->position.x - 10) << std::endl;
 	}
 	else
 	{
@@ -60,6 +60,11 @@ void PlayScene::update()
 		m_accelerationX = m_forceX / m_mass;
 		m_accelerationY = m_forceY / m_mass;
 	}
+	m_distance = (m_box->getTransform()->position.x - 10);
+	std::stringstream distancetravled;
+	distancetravled << "Displacement(X):" << m_distance << " Angle:" << m_angle << " Gravity:" << m_gravity << " Friction:" << m_friction;
+	const std::string distanceString = distancetravled.str();
+	m_distanceUI->setText(distanceString);
 }
 
 void PlayScene::clean()
@@ -90,16 +95,17 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
+	const SDL_Color blue = { 255, 0,0, 255 };
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
-	m_obstacle = new Obstacle();
-	m_obstacle->getTransform()->position = glm::vec2(200.0f, 455.0f);
-	addChild(m_obstacle);
 	m_box = new Box();
 	m_box->getTransform()->position = glm::vec2(10.0f, 275.0f);
 	m_box->setAngle(m_angle);
 	addChild(m_box);
-	//TextureManager::Instance().load("../Assets/textures/ramp.png", "ramp");
+
+	m_distanceUI = new Label("", "Consolas", 20, blue, glm::vec2(400.0f, 50.0f));
+	m_distanceUI->setParent(this);
+	addChild(m_distanceUI);
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
 
@@ -114,14 +120,27 @@ void PlayScene::GUI_Function()
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
 	ImGui::SliderFloat("Mass", &m_mass, 20, -20, "%.2f");
-	ImGui::SliderInt("Y", &startingY, 0, 300, "%.2f");
 	ImGui::SliderFloat("Angle", &m_angle, 30, 45, "%.2f");
+	ImGui::SliderFloat("Friction", &m_friction, 1, 0, "%.2f");
+	ImGui::SliderFloat("Gravity", &m_gravity, 0.0f, -2000, "%.1f");
 	ImGui::Separator();
-
 	if (ImGui::Button("LAUNCH"))
 	{
 		m_launch = true;
 	}
-	ImGui::SliderFloat("Gravity", &m_gravity, 0.0f, -2000, "%.1f");
+	if (ImGui::Button("RESET"))
+	{
+		m_launch = false;
+		m_box->getTransform()->position = glm::vec2(10.0f, 275.0f);
+		m_box->setAngle(m_angle);
+		m_forceX = m_mass * -m_gravity * (sin(m_angle * (M_PI / 180)));
+		m_forceY = m_mass * m_gravity * (sin(m_angle * (M_PI / 180)));
+		m_frictionForce = m_forceY * m_friction;
+		m_accelerationX = m_forceX / m_mass;
+		m_accelerationY = m_forceY / m_mass;
+		m_velocityY = 0;
+		m_velocityX = 0;
+		m_distance = 0;
+	}
 	ImGui::End();
 }
