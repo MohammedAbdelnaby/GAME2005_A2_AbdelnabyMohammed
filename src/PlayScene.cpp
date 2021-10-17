@@ -21,8 +21,8 @@ void PlayScene::draw()
 	drawDisplayList();
 	//TextureManager::Instance().draw("ramp", 192, 450, 0, 255, true);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 0, 0, 255, 255);
-	SDL_RenderDrawLine(Renderer::Instance().getRenderer(), 0, 300, 0 + cos(-m_box->getAngle() *(3.14/180)) * 600,
-		300 + sin(m_box->getAngle() * (3.14 / 180)) * 600);
+	SDL_RenderDrawLine(Renderer::Instance().getRenderer(), 0, startingY,
+		0 + cos(-m_angle *(3.14/180)) * 800,300 + sin(m_angle * (3.14 / 180)) * 800);
 	SDL_SetRenderDrawColor(Renderer::Instance().getRenderer(), 255, 255, 255, 255);
 }
 
@@ -30,28 +30,36 @@ void PlayScene::update()
 {
 	float DeltaTime = Game::Instance().getDeltaTime();
 	updateDisplayList();
-	if (CollisionManager::lineRectCheck(glm::vec2(0, 300),glm::vec2(0 + cos(-m_box->getAngle() * (3.14 / 180)) * 600 ,300 + sin(m_box->getAngle() * (3.14 / 180)) * 600),m_box->getTransform()->position, m_box->getWidth() - 10, m_box->getHeight() - 10))
+	if (m_launch)
 	{
-		m_isGrounded = true;
+		if (m_box->getTransform()->position.y <= 600 - m_box->getHeight() / 2)
+		{
+			velocityY -= m_accelerationY * (sin(m_angle * (M_PI / 180))) * DeltaTime;
+			velocityX += m_accelerationX * cos(m_angle * (M_PI / 180)) * DeltaTime;
+			m_box->getTransform()->position.y += velocityY * DeltaTime;
+			m_box->getTransform()->position.x += velocityX * DeltaTime;
+		}
+		else
+		{
+			m_box->setAngle(0);
+			if (velocityX >= 0)
+			{
+				m_accelerationX = -(m_frictionForce - m_forceY) / m_mass;
+				velocityX += m_accelerationX * DeltaTime;
+				m_box->getTransform()->position.x += velocityX * DeltaTime;
+			}
+		}
+		std::cout << (m_box->getTransform()->position.x - 10) << std::endl;
 	}
 	else
 	{
-		m_isGrounded = false;
+		m_box->setAngle(m_angle);
+		m_forceX = m_mass * -m_gravity * (sin(m_angle * (M_PI / 180)));
+		m_forceY = m_mass * m_gravity * (sin(m_angle * (M_PI / 180)));
+		m_frictionForce = m_forceY * m_friction;
+		m_accelerationX = m_forceX / m_mass;
+		m_accelerationY = m_forceY / m_mass;
 	}
-	if (m_box->getTransform()->position.y > 600 || m_isGrounded)
-	{
-		velocity.x += m_acceleration.x * DeltaTime;
-		std::cout << /*velocity.x*/ (300 + sin(m_box->getAngle() * (3.14 / 180)) * 600) << std::endl;
-		velocity.y = 0;
-	}
-	else
-	{
-		velocity.x = 0;
-		velocity.y -= m_acceleration.y * DeltaTime;
-	}
-	//std::cout << m_box->getTransform()->position.y << ", " << m_box->getTransform()->position.x << std::endl;
-	m_box->getTransform()->position.y += velocity.y * DeltaTime;
-	m_box->getTransform()->position.x += velocity.x * DeltaTime;
 }
 
 void PlayScene::clean()
@@ -88,14 +96,14 @@ void PlayScene::start()
 	m_obstacle->getTransform()->position = glm::vec2(200.0f, 455.0f);
 	addChild(m_obstacle);
 	m_box = new Box();
-	m_box->getTransform()->position = glm::vec2(10.0f, 80.0f);
-	m_box->setAngle(36.86);
+	m_box->getTransform()->position = glm::vec2(10.0f, 275.0f);
+	m_box->setAngle(m_angle);
 	addChild(m_box);
 	//TextureManager::Instance().load("../Assets/textures/ramp.png", "ramp");
 	ImGuiWindowFrame::Instance().setGUIFunction(std::bind(&PlayScene::GUI_Function, this));
 }
 
-void PlayScene::GUI_Function() const
+void PlayScene::GUI_Function()
 {
 	// Always open with a NewFrame
 	ImGui::NewFrame();
@@ -105,21 +113,15 @@ void PlayScene::GUI_Function() const
 	
 	ImGui::Begin("Your Window Title Goes Here", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
-	if(ImGui::Button("My Button"))
-	{
-		std::cout << "My Button Pressed" << std::endl;
-	}
-
+	ImGui::SliderFloat("Mass", &m_mass, 20, -20, "%.2f");
+	ImGui::SliderInt("Y", &startingY, 0, 300, "%.2f");
+	ImGui::SliderFloat("Angle", &m_angle, 30, 45, "%.2f");
 	ImGui::Separator();
 
-	static float float3[3] = { 0.0f, 1.0f, 1.5f };
-	if(ImGui::SliderFloat3("My Slider", float3, 0.0f, 2.0f))
+	if (ImGui::Button("LAUNCH"))
 	{
-		std::cout << float3[0] << std::endl;
-		std::cout << float3[1] << std::endl;
-		std::cout << float3[2] << std::endl;
-		std::cout << "---------------------------\n";
+		m_launch = true;
 	}
-	
+	ImGui::SliderFloat("Gravity", &m_gravity, 0.0f, -2000, "%.1f");
 	ImGui::End();
 }

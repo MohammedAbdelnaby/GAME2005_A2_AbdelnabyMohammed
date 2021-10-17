@@ -24,19 +24,27 @@ public:
 	virtual void start() override;
 private:
 	// IMGUI Function
-	void GUI_Function() const;
+	void GUI_Function();
 	std::string m_guiTitle;
 	Box* m_box;
 	glm::vec2 m_mousePosition;
-	float m_mass = 12.8;
-	glm::vec2 velocity;
+	float m_mass = 128;
+	float velocityY;
+	float velocityX;
+	float m_angle = 36.87;
 	float m_gravity = -980;
-	glm::vec2 m_acceleration = glm::vec2((m_mass * -m_gravity * cos(36.38 * (3.14 / 180))) / m_mass, m_gravity);
-
+	float m_accelerationX;
+	float m_forceX;
+	float m_forceY;
+	float m_accelerationY;
 	float m_friction = 0.42;
+	float m_frictionForce;
 	bool m_isGrounded;
+	bool m_launch = false;
 	Obstacle* m_obstacle;
-
+	float normalForce;
+	int startingY = 300;
+	float m_distance = 0;
 };
 
 #endif /* defined (__PLAY_SCENE__) */
