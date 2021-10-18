@@ -49,7 +49,7 @@ void PlayScene::update()
 			m_box->setAngle(0);
 			if (m_velocityX >= 0)
 			{
-				m_accelerationX = -(m_frictionForce - m_forceY) / m_mass;
+				m_accelerationX = -(m_frictionForce - m_forceY) / m_mass * (cos(m_angle * (M_PI / 180)));
 				m_velocityX += m_accelerationX * DeltaTime;
 				m_box->getTransform()->position.x += m_velocityX * DeltaTime;
 			}
